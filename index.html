@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WM42">
+<meta name="theme-color" content="#0f0f1a">
+<title>WrestleMania 42</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold:#FFD700;--gold-dim:#B8960C;--bg:#0f0f1a;--bg2:#181828;--bg3:#1e1e32;--bg4:#252540;
+  --text:#f0f0f0;--text2:#9090b0;--text3:#5a5a7a;
+  --green:#10b981;--green-bg:rgba(16,185,129,0.12);--green-border:rgba(16,185,129,0.3);
+  --red:#ef4444;--red-bg:rgba(239,68,68,0.12);--red-border:rgba(239,68,68,0.25);
+  --blue:#3b82f6;--blue-bg:rgba(59,130,246,0.12);
+  --gold-bg:rgba(255,215,0,0.08);--gold-border:rgba(255,215,0,0.25);
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --radius:14px;--radius-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;overscroll-behavior:none}
+body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height:100dvh}
+
+/* SCREENS */
+.screen{display:none;flex-direction:column;height:100dvh}
+.screen.active{display:flex}
+
+/* WELCOME SCREEN */
+.welcome-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;gap:20px}
+.wm-logo{font-family:'Bebas Neue',sans-serif;font-size:52px;color:var(--gold);letter-spacing:4px;text-align:center;line-height:1}
+.wm-sub{font-size:13px;color:var(--text2);text-align:center;letter-spacing:.3px}
+.welcome-form{width:100%;display:flex;flex-direction:column;gap:12px}
+.field-label{font-size:12px;color:var(--text2);margin-bottom:4px;display:block}
+.text-input{width:100%;background:var(--bg3);color:var(--text);border:0.5px solid var(--border2);border-radius:var(--radius-sm);padding:12px 14px;font-size:15px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s}
+.text-input:focus{border-color:var(--gold-dim)}
+.text-input::placeholder{color:var(--text3)}
+.btn-primary{width:100%;background:var(--gold);color:#0f0f1a;border:none;border-radius:var(--radius-sm);padding:14px;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:opacity .15s}
+.btn-primary:active{opacity:.85}
+.btn-secondary{width:100%;background:transparent;color:var(--text2);border:0.5px solid var(--border2);border-radius:var(--radius-sm);padding:12px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer}
+.btn-ghost{background:transparent;color:var(--text3);border:none;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;padding:4px 0}
+.welcome-divider{font-size:11px;color:var(--text3);text-align:center}
+
+/* APP HEADER */
+.app-header{background:var(--bg2);border-bottom:0.5px solid var(--border);padding:12px 16px 10px;flex-shrink:0}
+.header-row{display:flex;align-items:center;justify-content:space-between}
+.header-title{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);letter-spacing:2px;line-height:1}
+.header-user{font-size:12px;color:var(--text2);margin-top:1px}
+.header-right{display:flex;gap:8px;align-items:center}
+.icon-btn{background:var(--bg3);border:0.5px solid var(--border2);border-radius:var(--radius-sm);padding:6px 10px;font-size:11px;color:var(--text2);cursor:pointer;white-space:nowrap}
+.icon-btn.gold{color:var(--gold-dim);border-color:var(--gold-border);background:var(--gold-bg)}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--text3);display:inline-block;margin-right:4px;transition:background .3s}
+.sync-dot.ok{background:var(--green)}
+.sync-dot.err{background:var(--red)}
+.sync-dot.busy{background:var(--gold);animation:pulse .8s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* TABS */
+.tabs{display:flex;background:var(--bg2);border-bottom:0.5px solid var(--border);flex-shrink:0}
+.tab{flex:1;padding:10px 6px;text-align:center;font-size:12px;font-weight:500;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;user-select:none}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 12px 24px}
+
+/* STATS BAR */
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:13px}
+.stat-card{background:var(--bg3);border-radius:var(--radius-sm);padding:9px 6px;text-align:center;border:0.5px solid var(--border)}
+.stat-val{font-family:'Bebas Neue',sans-serif;font-size:21px;color:var(--gold);line-height:1}
+.stat-lbl{font-size:10px;color:var(--text2);margin-top:2px;line-height:1.2}
+
+/* MATCH CARD */
+.match-card{background:var(--bg3);border:0.5px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;transition:border-color .2s}
+.match-card.team-match{border-left:3px solid var(--green)}
+.match-card.hit{border-color:var(--green-border)}
+.match-card.miss{border-color:var(--red-border)}
+.match-head{padding:11px 14px 9px;border-bottom:0.5px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.match-name{font-weight:600;font-size:13px;line-height:1.35;flex:1;color:var(--text)}
+.match-badge{font-size:10px;padding:3px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0;margin-top:1px}
+.badge-team{background:var(--green-bg);color:#34d399}
+.match-selects{padding:9px 14px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.select-group label{font-size:10px;color:var(--text3);display:block;margin-bottom:4px;letter-spacing:.3px}
+.select-group select{width:100%;background:var(--bg4);color:var(--text);border:0.5px solid var(--border2);border-radius:var(--radius-sm);padding:8px 10px;font-size:12px;font-family:'DM Sans',sans-serif;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666688'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;cursor:pointer;outline:none;transition:border-color .15s}
+.select-group select:focus{border-color:var(--gold-dim)}
+.select-group select:disabled{opacity:.4;cursor:default}
+.card-dynamic{}
+.match-result{padding:7px 14px 9px;border-top:0.5px solid var(--border);display:flex;align-items:center;gap:10px}
+.result-exact,.result-team{font-size:11px;display:flex;align-items:center;gap:5px}
+.r-label{color:var(--text3)}
+.r-val{font-weight:600;font-size:13px}
+.result-separator{width:0.5px;height:22px;background:var(--border)}
+.result-pending{font-size:11px;color:var(--text3);font-style:italic}
+.team-note{padding:5px 14px 7px;background:var(--green-bg);border-top:0.5px solid rgba(16,185,129,.2);font-size:11px;color:#34d399;line-height:1.4}
+
+/* RANKING SCREEN */
+.ranking-header{background:var(--bg2);border-bottom:0.5px solid var(--border);padding:14px 16px;flex-shrink:0;text-align:center}
+.ranking-title{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--gold);letter-spacing:3px}
+.ranking-sub{font-size:11px;color:var(--text2);margin-top:2px}
+.ranking-body{flex:1;overflow-y:auto;padding:16px 12px 24px}
+.podium{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px;align-items:end}
+.podium-card{background:var(--bg3);border:0.5px solid var(--border);border-radius:var(--radius);padding:12px 8px;text-align:center}
+.podium-card.p1{border-color:var(--gold-border);background:rgba(255,215,0,0.06)}
+.podium-card.p2{border-color:rgba(192,192,192,0.3)}
+.podium-card.p3{border-color:rgba(205,127,50,0.3)}
+.podium-pos{font-family:'Bebas Neue',sans-serif;font-size:28px;line-height:1}
+.p1 .podium-pos{color:var(--gold)}
+.p2 .podium-pos{color:#C0C0C0}
+.p3 .podium-pos{color:#CD7F32}
+.podium-name{font-size:12px;font-weight:600;color:var(--text);margin:6px 0 2px;line-height:1.2;word-break:break-word}
+.podium-score{font-size:11px;color:var(--text2)}
+.ranking-list{display:flex;flex-direction:column;gap:7px}
+.rank-row{background:var(--bg3);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:11px 14px;display:flex;align-items:center;gap:12px}
+.rank-pos{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--text3);width:22px;text-align:center;flex-shrink:0}
+.rank-name{flex:1;font-size:13px;font-weight:500;color:var(--text)}
+.rank-scores{display:flex;gap:10px;flex-shrink:0}
+.rank-score{text-align:center}
+.rank-score .rv{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold)}
+.rank-score .rl{font-size:10px;color:var(--text3);margin-top:-1px}
+.rank-empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:13px}
+
+/* EXPORT/IMPORT MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:flex-end;justify-content:center;z-index:100}
+.modal-overlay.hidden{display:none}
+.modal-sheet{background:var(--bg2);border-radius:20px 20px 0 0;padding:20px 20px 32px;width:100%;max-width:480px;border-top:0.5px solid var(--border2)}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);letter-spacing:1px;margin-bottom:4px}
+.modal-sub{font-size:12px;color:var(--text2);margin-bottom:16px;line-height:1.4}
+.code-box{width:100%;background:var(--bg4);color:var(--text);border:0.5px solid var(--border2);border-radius:var(--radius-sm);padding:12px;font-size:12px;font-family:monospace;resize:none;outline:none;min-height:80px}
+.modal-btns{display:flex;gap:8px;margin-top:12px}
+.modal-btn{flex:1;padding:11px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;border:none}
+.modal-btn.primary{background:var(--gold);color:#0f0f1a}
+.modal-btn.secondary{background:var(--bg4);color:var(--text2);border:0.5px solid var(--border2)}
+.modal-close{float:right;background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;line-height:1;margin-top:-4px}
+
+/* ORGANIZER PIN */
+.pin-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;gap:16px}
+.pin-title{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--gold);letter-spacing:2px;text-align:center}
+.pin-sub{font-size:13px;color:var(--text2);text-align:center}
+.pin-input{width:100%;max-width:200px;background:var(--bg3);color:var(--text);border:0.5px solid var(--border2);border-radius:var(--radius-sm);padding:14px;font-size:22px;font-family:monospace;outline:none;text-align:center;letter-spacing:6px;transition:border-color .15s}
+.pin-input:focus{border-color:var(--gold-dim)}
+.pin-error{font-size:12px;color:var(--red);min-height:18px;text-align:center}
+
+/* SHEETS CONFIG */
+.sheets-banner{background:var(--blue-bg);border:0.5px solid rgba(59,130,246,.3);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:12px;font-size:12px;color:#93c5fd;line-height:1.5}
+.sheets-banner strong{color:#bfdbfe}
+
+/* TOAST */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg3);border:0.5px solid var(--border2);border-radius:30px;padding:9px 18px;font-size:12px;color:var(--text2);opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;z-index:200}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* BOTTOM NAV */
+.bottom-nav{display:flex;background:var(--bg2);border-top:0.5px solid var(--border);padding:8px 0 max(8px,env(safe-area-inset-bottom));flex-shrink:0}
+.nav-item{flex:1;text-align:center;cursor:pointer;padding:3px 0;user-select:none}
+.nav-icon{font-size:17px;display:block;line-height:1;margin-bottom:3px}
+.nav-lbl{font-size:10px;color:var(--text3);transition:color .15s}
+.nav-item.active .nav-lbl{color:var(--gold)}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.main>*{animation:fadeIn .18s ease both}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ WELCOME SCREEN ═══════════════ -->
+<div class="screen active" id="screenWelcome">
+  <div class="welcome-body">
+    <div>
+      <div class="wm-logo">WrestleMania<br>42</div>
+      <div class="wm-sub">Las Vegas · Abril 2026</div>
+    </div>
+    <div class="welcome-form" id="welcomeForm">
+      <div>
+        <label class="field-label">¿Cuál es tu nombre?</label>
+        <input class="text-input" id="nameInput" type="text" placeholder="Ej: Carlos" maxlength="24" autocomplete="off">
+      </div>
+      <button class="btn-primary" onclick="startApp()">Entrar al juego</button>
+      <div class="welcome-divider">— o —</div>
+      <button class="btn-secondary" onclick="showImportFromWelcome()">Importar predicciones guardadas</button>
+      <button class="btn-ghost" onclick="showOrganizerFromWelcome()">Acceso organizador</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MAIN APP SCREEN ═══════════════ -->
+<div class="screen" id="screenApp">
+  <div class="app-header">
+    <div class="header-row">
+      <div>
+        <div class="header-title">WrestleMania 42</div>
+        <div class="header-user" id="headerUser"></div>
+      </div>
+      <div class="header-right">
+        <button class="icon-btn" onclick="openExportModal()">📤 Guardar</button>
+        <button class="icon-btn gold" id="syncBtn" onclick="syncToSheets()"><span class="sync-dot" id="syncDot"></span>Sync</button>
+      </div>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" data-tab="dia1">Día 1</div>
+    <div class="tab" data-tab="dia2">Día 2</div>
+    <div class="tab" data-tab="resumen">Mi resumen</div>
+  </div>
+  <div class="main" id="mainContent"></div>
+  <div class="bottom-nav">
+    <div class="nav-item active" data-tab="dia1"><span class="nav-icon">🥊</span><span class="nav-lbl">Día 1</span></div>
+    <div class="nav-item" data-tab="dia2"><span class="nav-icon">🏆</span><span class="nav-lbl">Día 2</span></div>
+    <div class="nav-item" data-tab="resumen"><span class="nav-icon">📊</span><span class="nav-lbl">Resumen</span></div>
+    <div class="nav-item" data-tab="organizer"><span class="nav-icon">🔐</span><span class="nav-lbl">Admin</span></div>
+  </div>
+</div>
+
+<!-- ═══════════════ ORGANIZER SCREEN ═══════════════ -->
+<div class="screen" id="screenOrganizer">
+  <div class="app-header">
+    <div class="header-row">
+      <div>
+        <div class="header-title">Organizador</div>
+        <div class="header-user">WrestleMania 42</div>
+      </div>
+      <button class="icon-btn" onclick="goBack()">← Volver</button>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" data-otab="results">Resultados</div>
+    <div class="tab" data-otab="ranking">Ranking</div>
+    <div class="tab" data-otab="config">Config</div>
+  </div>
+  <div class="main" id="orgContent"></div>
+</div>
+
+<!-- ═══════════════ EXPORT/IMPORT MODAL ═══════════════ -->
+<div class="modal-overlay hidden" id="modalOverlay">
+  <div class="modal-sheet" id="modalSheet"></div>
+</div>
+
+<!-- ═══════════════ TOAST ═══════════════ -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════
+const ORGANIZER_PIN = '1904';
+const SHEETS_URL_KEY = 'wm42_sheets_url';
+
+const MATCHES = [
+  {id:1,dia:'dia1',nombre:'Cody Rhodes vs Randy Orton',opts:['Cody Rhodes','Randy Orton'],teams:null},
+  {id:2,dia:'dia1',nombre:'Seth Rollins vs Gunther',opts:['Seth Rollins','Gunther'],teams:null},
+  {id:3,dia:'dia1',nombre:'AJ Lee vs Becky Lynch',opts:['AJ Lee','Becky Lynch'],teams:null},
+  {id:4,dia:'dia1',nombre:'Drew McIntyre vs Jacob Fatu',opts:['Drew McIntyre','Jacob Fatu'],teams:null},
+  {id:5,dia:'dia1',nombre:'Logan Paul & Theory & Speed vs Usos & LA Knight',
+    opts:['Logan Paul','Austin Theory','IShowSpeed','Jimmy Uso','Jey Uso','LA Knight'],
+    teams:{'Logan Paul':'Equipo Logan','Austin Theory':'Equipo Logan','IShowSpeed':'Equipo Logan',
+           'Jimmy Uso':'Equipo Usos','Jey Uso':'Equipo Usos','LA Knight':'Equipo Usos'}},
+  {id:6,dia:'dia1',nombre:"Women's Tag Fatal 4-Way",
+    opts:['Alexa Bliss','Charlotte Flair','Bayley','Lyra Valkyria','Brie Bella','Nikki Bella','Nia Jax','Lash Legend'],
+    teams:{'Alexa Bliss':'Equipo Charlotte','Charlotte Flair':'Equipo Charlotte',
+           'Bayley':'Equipo Bayley','Lyra Valkyria':'Equipo Bayley',
+           'Brie Bella':'Equipo Bellas','Nikki Bella':'Equipo Bellas',
+           'Nia Jax':'Equipo Nia','Lash Legend':'Equipo Nia'}},
+  {id:7,dia:'dia2',nombre:'CM Punk vs Roman Reigns',opts:['CM Punk','Roman Reigns'],teams:null},
+  {id:8,dia:'dia2',nombre:'Brock Lesnar vs Oba Femi',opts:['Brock Lesnar','Oba Femi'],teams:null},
+  {id:9,dia:'dia2',nombre:'Jade Cargill vs Rhea Ripley',opts:['Jade Cargill','Rhea Ripley'],teams:null},
+  {id:10,dia:'dia2',nombre:'Stephanie Vaquer vs Liv Morgan',opts:['Stephanie Vaquer','Liv Morgan'],teams:null},
+  {id:11,dia:'dia2',nombre:'Intercontinental Championship Ladder Match',
+    opts:['Penta','Dragon Lee','Rey Mysterio','JD McDonagh','Rusev',"Je'Von Evans"],teams:null},
+  {id:12,dia:'dia2',nombre:'Sami Zayn vs Trick Williams',opts:['Sami Zayn','Trick Williams'],teams:null},
+  {id:13,dia:'dia2',nombre:'Finn Bálor vs Dominik Mysterio',opts:['Finn Bálor','Dominik Mysterio'],teams:null}
+];
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+function ls(k,v){if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}
+function lsj(k,v){if(v===undefined){try{return JSON.parse(ls(k)||'null')}catch{return null}}ls(k,JSON.stringify(v))}
+
+let currentUser = ls('wm42_user') || '';
+let predictions = lsj('wm42_preds') || {};   // {matchId: {prediccion}}
+let results     = lsj('wm42_results') || {};  // {matchId: {ganador}} — set by organizer
+let currentTab  = 'dia1';
+let orgTab      = 'results';
+let orgUnlocked = false;
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+window.onload = () => {
+  if (currentUser) {
+    showScreen('screenApp');
+    renderApp();
+  }
+};
+
+function startApp() {
+  const name = document.getElementById('nameInput').value.trim();
+  if (!name) { showToast('Escribe tu nombre primero'); return; }
+  currentUser = name;
+  ls('wm42_user', name);
+  showScreen('screenApp');
+  renderApp();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function goBack() {
+  showScreen('screenApp');
+  renderApp();
+}
+
+// ═══════════════════════════════════════════════════
+// TEAM HELPERS
+// ═══════════════════════════════════════════════════
+function getTeam(match, name) {
+  if (!match.teams || !name) return null;
+  return match.teams[name] || null;
+}
+
+function calcResult(match, ganador, prediccion) {
+  if (!ganador || !prediccion) return {exact:null,team:null};
+  const exact = ganador === prediccion;
+  let team = match.teams
+    ? !!(getTeam(match,ganador) && getTeam(match,prediccion) && getTeam(match,ganador)===getTeam(match,prediccion))
+    : exact;
+  return {exact, team};
+}
+
+// ═══════════════════════════════════════════════════
+// RENDER APP
+// ═══════════════════════════════════════════════════
+function renderApp() {
+  document.getElementById('headerUser').textContent = '👤 ' + currentUser;
+  const el = document.getElementById('mainContent');
+  if (currentTab==='dia1') el.innerHTML = renderDayView('dia1');
+  else if (currentTab==='dia2') el.innerHTML = renderDayView('dia2');
+  else el.innerHTML = renderMyResumen();
+  el.scrollTop = 0;
+}
+
+function buildSelect(opts, val, placeholder, disabled) {
+  let h = `<option value="">${placeholder}</option>`;
+  opts.forEach(o => { h += `<option value="${o}"${val===o?' selected':''}>${o}</option>`; });
+  return h;
+}
+
+function renderDayView(dia) {
+  const ms = MATCHES.filter(m => m.dia===dia);
+  let total=ms.length, hitE=0, hitT=0, played=0;
+  ms.forEach(m => {
+    const p=predictions[m.id]||{}, r=results[m.id]||{};
+    const res=calcResult(m, r.ganador, p.prediccion);
+    if(r.ganador && p.prediccion){played++;if(res.exact)hitE++;if(res.team)hitT++;}
+  });
+  const pct = played>0 ? Math.round(hitT/played*100) : 0;
+
+  let html = `<div class="stats-bar">
+    <div class="stat-card"><div class="stat-val">${total}</div><div class="stat-lbl">Luchas</div></div>
+    <div class="stat-card"><div class="stat-val">${hitE}</div><div class="stat-lbl">Exactos</div></div>
+    <div class="stat-card"><div class="stat-val">${hitT}</div><div class="stat-lbl">Equipo</div></div>
+    <div class="stat-card"><div class="stat-val">${played>0?pct+'%':'—'}</div><div class="stat-lbl">% Equipo</div></div>
+  </div>`;
+
+  ms.forEach(m => {
+    const p=predictions[m.id]||{}, r=results[m.id]||{};
+    const res=calcResult(m, r.ganador, p.prediccion);
+    const tg=m.teams?getTeam(m,r.ganador):null;
+    const tp=m.teams?getTeam(m,p.prediccion):null;
+    const teamNote=m.teams&&r.ganador&&p.prediccion&&!res.exact&&res.team;
+
+    let cardClass='match-card'+(m.teams?' team-match':'');
+    if(r.ganador&&p.prediccion) cardClass+=res.team?' hit':' miss';
+
+    const resultHTML = buildResultHTML(m, r.ganador, p.prediccion, res, tg, tp, teamNote);
+    const teamInfoHTML = (m.teams&&(r.ganador||p.prediccion))
+      ? `<div style="padding:4px 14px 8px;font-size:10px;color:var(--text3)">${r.ganador?`Ganador: <span style="color:var(--text2)">${tg||r.ganador}</span>`:''} ${p.prediccion?`&nbsp;·&nbsp; Tu pred: <span style="color:var(--text2)">${tp||p.prediccion}</span>`:''}</div>` : '';
+
+    html += `<div class="${cardClass}" id="card-${m.id}">
+      <div class="match-head">
+        <div class="match-name">${m.nombre}</div>
+        ${m.teams?'<span class="match-badge badge-team">Equipos</span>':''}
+      </div>
+      <div class="match-selects">
+        <div class="select-group">
+          <label>Ganador real</label>
+          <select disabled style="opacity:.45;cursor:default">
+            ${buildSelect(m.opts, r.ganador||'', r.ganador||'Pendiente...')}
+          </select>
+        </div>
+        <div class="select-group">
+          <label>Tu predicción</label>
+          <select onchange="setPred(${m.id},this.value)">
+            ${buildSelect(m.opts, p.prediccion||'', 'Elige...')}
+          </select>
+        </div>
+      </div>
+      <div class="card-dynamic">${resultHTML}${teamNote?`<div class="team-note">Ganó ${tg} — predijiste al mismo equipo ✓</div>`:''}${teamInfoHTML}</div>
+    </div>`;
+  });
+  return html;
+}
+
+function buildResultHTML(m, ganador, prediccion, res, tg, tp, teamNote) {
+  if (!ganador && !prediccion) return `<div class="match-result"><span class="result-pending">Sin datos aún</span></div>`;
+  const ei = res.exact===null?'·':(res.exact?'✅':'❌');
+  const ti = res.team===null?'·':(res.team?'✅':'❌');
+  if (m.teams) {
+    return `<div class="match-result">
+      <div class="result-exact"><span class="r-label">Exacto</span><span class="r-val">${ei}</span></div>
+      <div class="result-separator"></div>
+      <div class="result-team"><span class="r-label">Por equipo</span><span class="r-val">${ti}</span></div>
+    </div>`;
+  }
+  return `<div class="match-result">
+    <div class="result-exact"><span class="r-label">Resultado</span><span class="r-val">${ei}</span></div>
+  </div>`;
+}
+
+function renderMyResumen() {
+  let hitE=0, hitT=0, played=0, teamSaved=0;
+  MATCHES.forEach(m => {
+    const p=predictions[m.id]||{}, r=results[m.id]||{};
+    const res=calcResult(m, r.ganador, p.prediccion);
+    if(r.ganador&&p.prediccion){played++;if(res.exact)hitE++;if(res.team)hitT++;if(m.teams&&!res.exact&&res.team)teamSaved++;}
+  });
+  const pctE=played>0?Math.round(hitE/played*100):0;
+  const pctT=played>0?Math.round(hitT/played*100):0;
+
+  let rows='';
+  MATCHES.forEach(m => {
+    const p=predictions[m.id]||{}, r=results[m.id]||{};
+    const res=calcResult(m, r.ganador, p.prediccion);
+    let bE=`<div style="width:22px;height:22px;border-radius:50%;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text3)">?</div>`;
+    let bT='';
+    if(r.ganador&&p.prediccion){
+      bE=`<div style="width:22px;height:22px;border-radius:50%;background:${res.exact?'var(--green-bg)':'var(--red-bg)'};display:flex;align-items:center;justify-content:center;font-size:12px">${res.exact?'✅':'❌'}</div>`;
+      if(m.teams) bT=`<div style="width:22px;height:22px;border-radius:50%;background:${res.team?'var(--green-bg)':'var(--red-bg)'};display:flex;align-items:center;justify-content:center;font-size:12px">${res.team?'✅':'❌'}</div>`;
+    }
+    rows+=`<div style="background:var(--bg3);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;display:flex;align-items:center;gap:10px;margin-bottom:6px">
+      <div style="flex:1;font-size:12px;color:var(--text);line-height:1.3">${m.nombre}</div>
+      <div style="display:flex;gap:5px;flex-shrink:0">${bE}${bT}</div>
+    </div>`;
+  });
+
+  return `<div style="margin-bottom:16px">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);letter-spacing:1px;margin-bottom:10px;padding-bottom:6px;border-bottom:0.5px solid var(--border)">Mis resultados</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+      <div style="background:var(--bg3);border:0.5px solid var(--gold-border);border-radius:var(--radius);padding:14px;text-align:center">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:38px;color:var(--gold)">${pctE}%</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:3px">Acierto exacto</div>
+      </div>
+      <div style="background:var(--bg3);border:0.5px solid var(--gold-border);border-radius:var(--radius);padding:14px;text-align:center">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:38px;color:var(--gold)">${pctT}%</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:3px">Acierto equipo</div>
+      </div>
+      <div style="background:var(--bg3);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:38px;color:var(--gold)">${hitE}/${played}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:3px">Exactos / jugados</div>
+      </div>
+      <div style="background:var(--bg3);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:38px;color:var(--gold)">${teamSaved}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:3px">Salvados por equipo</div>
+      </div>
+    </div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);letter-spacing:1px;margin-bottom:10px;padding-bottom:6px;border-bottom:0.5px solid var(--border)">Lucha por lucha</div>
+    <div style="font-size:10px;color:var(--text3);margin-bottom:8px">✅❌ = exacto &nbsp;·&nbsp; segunda insignia = por equipo</div>
+    ${rows}
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════
+// PREDICTIONS
+// ═══════════════════════════════════════════════════
+function setPred(id, val) {
+  if (!predictions[id]) predictions[id]={};
+  predictions[id].prediccion = val;
+  lsj('wm42_preds', predictions);
+  updateCard(id);
+  autoSync();
+}
+
+function updateCard(id) {
+  const card = document.getElementById('card-'+id);
+  if (!card) return;
+  const m = MATCHES.find(x=>x.id===id);
+  const p = predictions[id]||{}, r = results[id]||{};
+  const res = calcResult(m, r.ganador, p.prediccion);
+  const tg = m.teams?getTeam(m,r.ganador):null;
+  const tp = m.teams?getTeam(m,p.prediccion):null;
+  const teamNote = m.teams&&r.ganador&&p.prediccion&&!res.exact&&res.team;
+
+  card.className = 'match-card'+(m.teams?' team-match':'')+
+    (r.ganador&&p.prediccion?(res.team?' hit':' miss'):'');
+
+  const dyn = card.querySelector('.card-dynamic');
+  const teamInfoHTML = (m.teams&&(r.ganador||p.prediccion))
+    ? `<div style="padding:4px 14px 8px;font-size:10px;color:var(--text3)">${r.ganador?`Ganador: <span style="color:var(--text2)">${tg||r.ganador}</span>`:''} ${p.prediccion?`&nbsp;·&nbsp; Tu pred: <span style="color:var(--text2)">${tp||p.prediccion}</span>`:''}</div>` : '';
+  dyn.innerHTML = buildResultHTML(m,r.ganador,p.prediccion,res,tg,tp,teamNote)+
+    (teamNote?`<div class="team-note">Ganó ${tg} — predijiste al mismo equipo ✓</div>`:'')+teamInfoHTML;
+  updateStatsBar();
+}
+
+function updateStatsBar() {
+  const dia = currentTab;
+  if (dia==='resumen') return;
+  const ms = MATCHES.filter(m=>m.dia===dia);
+  let total=ms.length, hitE=0, hitT=0, played=0;
+  ms.forEach(m=>{
+    const p=predictions[m.id]||{}, r=results[m.id]||{};
+    const res=calcResult(m,r.ganador,p.prediccion);
+    if(r.ganador&&p.prediccion){played++;if(res.exact)hitE++;if(res.team)hitT++;}
+  });
+  const pct=played>0?Math.round(hitT/played*100):0;
+  const bar=document.querySelector('.stats-bar');
+  if(!bar) return;
+  const vals=bar.querySelectorAll('.stat-val');
+  if(vals[0])vals[0].textContent=total;
+  if(vals[1])vals[1].textContent=hitE;
+  if(vals[2])vals[2].textContent=hitT;
+  if(vals[3])vals[3].textContent=played>0?pct+'%':'—';
+}
+
+// ═══════════════════════════════════════════════════
+// ORGANIZER
+// ═══════════════════════════════════════════════════
+function openOrganizer() {
+  if (orgUnlocked) {
+    showScreen('screenOrganizer');
+    renderOrg();
+    return;
+  }
+  showPinModal();
+}
+
+function showPinModal() {
+  const modal = document.getElementById('modalOverlay');
+  modal.classList.remove('hidden');
+  document.getElementById('modalSheet').innerHTML = `
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div class="modal-title">Acceso organizador</div>
+    <div class="modal-sub">Ingresa el PIN para acceder al panel de resultados y ranking.</div>
+    <input class="pin-input" id="pinInput" type="password" maxlength="6" placeholder="••••" autofocus
+      oninput="if(this.value.length>=4)checkPin(this.value)">
+    <div class="pin-error" id="pinError"></div>
+  `;
+  setTimeout(()=>document.getElementById('pinInput')?.focus(),100);
+}
+
+function checkPin(val) {
+  if (val === ORGANIZER_PIN) {
+    orgUnlocked = true;
+    closeModal();
+    showScreen('screenOrganizer');
+    renderOrg();
+  } else if (val.length >= 6) {
+    document.getElementById('pinError').textContent = 'PIN incorrecto';
+    document.getElementById('pinInput').value = '';
+  }
+}
+
+function renderOrg() {
+  const el = document.getElementById('orgContent');
+  if (orgTab==='results') el.innerHTML = renderOrgResults();
+  else if (orgTab==='ranking') el.innerHTML = renderOrgRanking();
+  else el.innerHTML = renderOrgConfig();
+  el.scrollTop = 0;
+}
+
+function renderOrgResults() {
+  let html = `<div style="font-size:12px;color:var(--text2);margin-bottom:12px;padding:10px 12px;background:var(--bg3);border-radius:var(--radius-sm);border:0.5px solid var(--border)">
+    Ingresa los ganadores reales aquí. Se actualizan para todos los participantes automáticamente al sincronizar.
+  </div>`;
+  ['dia1','dia2'].forEach(dia => {
+    html+=`<div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;padding:4px 2px 8px;margin-top:4px">${dia==='dia1'?'Día 1':'Día 2'}</div>`;
+    MATCHES.filter(m=>m.dia===dia).forEach(m=>{
+      const r=results[m.id]||{};
+      html+=`<div style="background:var(--bg3);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px">
+        <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:7px;line-height:1.3">${m.nombre}</div>
+        <select style="width:100%;background:var(--bg4);color:var(--text);border:0.5px solid var(--border2);border-radius:var(--radius-sm);padding:8px 10px;font-size:12px;font-family:'DM Sans',sans-serif;appearance:none;-webkit-appearance:none;outline:none"
+          onchange="setResult(${m.id},this.value)">
+          ${buildSelect(m.opts, r.ganador||'', r.ganador||'Sin resultado aún')}
+        </select>
+      </div>`;
+    });
+  });
+  html+=`<div style="padding:8px 0 4px;text-align:center">
+    <button class="btn-primary" style="max-width:300px" onclick="pushResultsToSheets()">📤 Publicar resultados</button>
+  </div>`;
+  return html;
+}
+
+function renderOrgRanking() {
+  const url = ls(SHEETS_URL_KEY);
+  if (!url) {
+    return `<div style="text-align:center;padding:40px 20px">
+      <div style="font-size:32px;margin-bottom:12px">🔗</div>
+      <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:8px">Sin conexión a Google Sheets</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:20px;line-height:1.5">Configura el Google Sheets en la pestaña Config para ver el ranking de todos los participantes.</div>
+      <button class="btn-secondary" onclick="setOrgTab('config')">Ir a configuración</button>
+    </div>`;
+  }
+  return `<div style="text-align:center;padding:20px">
+    <div style="font-size:12px;color:var(--text2);margin-bottom:16px">Cargando ranking desde Google Sheets...</div>
+    <button class="btn-secondary" onclick="loadRankingFromSheets()">🔄 Cargar ranking</button>
+  </div>
+  <div id="rankingContent"></div>`;
+}
+
+function renderOrgConfig() {
+  const url = ls(SHEETS_URL_KEY)||'';
+  return `<div style="padding:4px 0">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);letter-spacing:1px;margin-bottom:10px">Google Sheets</div>
+
+    <div class="sheets-banner">
+      <strong>Instrucciones de configuración:</strong><br><br>
+      1. Abre <strong>Google Sheets</strong> y crea una hoja nueva.<br>
+      2. En el menú: <strong>Extensiones → Apps Script</strong>.<br>
+      3. Borra el código que hay y pega el script que se encuentra al final de esta app (encuéntralo abriendo el archivo HTML en un editor de texto y busca la sección APPS SCRIPT).<br>
+      4. Haz clic en <strong>Implementar → Nueva implementación</strong>.<br>
+      5. Tipo: <strong>Aplicación web</strong>. Ejecutar como: <strong>Yo</strong>. Acceso: <strong>Cualquier persona</strong>.<br>
+      6. Copia la URL que te da y pégala aquí abajo.<br>
+    </div>
+
+    <label class="field-label">URL del Apps Script</label>
+    <input class="text-input" id="sheetsUrlInput" type="url" placeholder="https://script.google.com/macros/s/..." value="${url}" style="margin-bottom:10px">
+    <button class="btn-primary" onclick="saveSheetUrl()">Guardar URL</button>
+
+    <div style="margin-top:20px;padding-top:16px;border-top:0.5px solid var(--border)">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:10px">PIN del organizador actual: <strong style="color:var(--gold);font-family:monospace">${ORGANIZER_PIN}</strong></div>
+      <div style="font-size:11px;color:var(--text3);line-height:1.5">Para cambiar el PIN, edita la variable ORGANIZER_PIN en el código fuente del archivo HTML.</div>
+    </div>
+
+    <div style="margin-top:20px;padding-top:16px;border-top:0.5px solid var(--border)">
+      <button class="btn-secondary" style="color:var(--red);border-color:var(--red-border)" onclick="resetAll()">Borrar todos mis datos locales</button>
+    </div>
+  </div>`;
+}
+
+function setOrgTab(tab) {
+  orgTab = tab;
+  document.querySelectorAll('[data-otab]').forEach(t => {
+    t.classList.toggle('active', t.dataset.otab===tab);
+  });
+  renderOrg();
+}
+
+function setResult(id, val) {
+  if (!results[id]) results[id]={};
+  results[id].ganador = val;
+  lsj('wm42_results', results);
+}
+
+function saveSheetUrl() {
+  const url = document.getElementById('sheetsUrlInput').value.trim();
+  ls(SHEETS_URL_KEY, url);
+  showToast('URL guardada correctamente');
+}
+
+// ═══════════════════════════════════════════════════
+// GOOGLE SHEETS SYNC
+// ═══════════════════════════════════════════════════
+let syncTimeout = null;
+
+function autoSync() {
+  clearTimeout(syncTimeout);
+  syncTimeout = setTimeout(syncToSheets, 3000);
+}
+
+async function syncToSheets() {
+  const url = ls(SHEETS_URL_KEY);
+  if (!url) return;
+  setSyncState('busy');
+  const payload = {
+    action: 'savePredictions',
+    user: currentUser,
+    predictions: predictions
+  };
+  try {
+    await fetch(url, {
+      method:'POST',
+      mode:'no-cors',
+      body: JSON.stringify(payload)
+    });
+    setSyncState('ok');
+    showToast('Sincronizado ✓');
+  } catch(e) {
+    setSyncState('err');
+    showToast('Error de conexión');
+  }
+}
+
+async function pushResultsToSheets() {
+  const url = ls(SHEETS_URL_KEY);
+  if (!url) { showToast('Configura Google Sheets primero'); setOrgTab('config'); return; }
+  setSyncState('busy');
+  const payload = { action:'saveResults', results };
+  try {
+    await fetch(url, {method:'POST', mode:'no-cors', body:JSON.stringify(payload)});
+    setSyncState('ok');
+    showToast('Resultados publicados ✓');
+  } catch(e) {
+    setSyncState('err');
+    showToast('Error al publicar');
+  }
+}
+
+async function loadRankingFromSheets() {
+  const url = ls(SHEETS_URL_KEY);
+  if (!url) return;
+  const el = document.getElementById('rankingContent');
+  if (el) el.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text2);font-size:12px">Cargando...</div>`;
+  try {
+    const res = await fetch(url+'?action=getRanking');
+    const data = await res.json();
+    if (el) el.innerHTML = buildRankingHTML(data);
+  } catch(e) {
+    if (el) el.innerHTML = `<div style="text-align:center;padding:20px;color:var(--red);font-size:12px">Error al cargar el ranking. Verifica la URL del script.</div>`;
+  }
+}
+
+function buildRankingHTML(players) {
+  if (!players || players.length===0)
+    return `<div class="rank-empty">Aún no hay predicciones registradas en Sheets.</div>`;
+
+  const sorted = [...players].sort((a,b) => b.exactos - a.exactos || b.equipo - a.equipo);
+  let html = '';
+
+  const top3 = sorted.slice(0,3);
+  const order = top3.length>=3 ? [top3[1],top3[0],top3[2]] : (top3.length===2?[top3[1],top3[0]]:top3);
+  const posClass = top3.length>=3 ? ['p2','p1','p3'] : ['p2','p1'];
+
+  html += `<div class="podium" style="grid-template-columns:repeat(${Math.min(3,top3.length)},1fr)">`;
+  order.forEach((p,i) => {
+    if (!p) return;
+    const realPos = sorted.indexOf(p)+1;
+    html+=`<div class="podium-card ${posClass[i]}" style="${i===1?'padding-top:20px':''}">
+      <div class="podium-pos">#${realPos}</div>
+      <div class="podium-name">${p.nombre}</div>
+      <div class="podium-score">${p.exactos} exactos · ${p.equipo} equipo</div>
+    </div>`;
+  });
+  html += '</div>';
+
+  html += '<div class="ranking-list">';
+  sorted.forEach((p,i) => {
+    html+=`<div class="rank-row">
+      <div class="rank-pos">${i+1}</div>
+      <div class="rank-name">${p.nombre}</div>
+      <div class="rank-scores">
+        <div class="rank-score"><div class="rv">${p.exactos}</div><div class="rl">Exactos</div></div>
+        <div class="rank-score"><div class="rv">${p.equipo}</div><div class="rl">Equipo</div></div>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  return html;
+}
+
+function setSyncState(state) {
+  const dot = document.getElementById('syncDot');
+  if (dot) { dot.className='sync-dot '+state; }
+}
+
+// ═══════════════════════════════════════════════════
+// EXPORT / IMPORT
+// ═══════════════════════════════════════════════════
+function exportCode() {
+  const parts = [currentUser];
+  MATCHES.forEach(m => {
+    const p = predictions[m.id]||{};
+    const v = p.prediccion||'';
+    const idx = v ? m.opts.indexOf(v) : -1;
+    parts.push(idx >= 0 ? idx : '');
+  });
+  return parts.join('|');
+}
+
+function importCode(code) {
+  const parts = code.trim().split('|');
+  if (parts.length < 2) throw new Error('Código inválido');
+  const name = parts[0];
+  const preds = {};
+  MATCHES.forEach((m,i) => {
+    const idx = parseInt(parts[i+1]);
+    if (!isNaN(idx) && idx>=0 && idx<m.opts.length) {
+      preds[m.id] = { prediccion: m.opts[idx] };
+    }
+  });
+  return { name, preds };
+}
+
+function openExportModal() {
+  const code = exportCode();
+  document.getElementById('modalOverlay').classList.remove('hidden');
+  document.getElementById('modalSheet').innerHTML = `
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div class="modal-title">Guardar predicciones</div>
+    <div class="modal-sub">Copia este código y guárdalo donde quieras (notas, WhatsApp). Úsalo para restaurar tus predicciones en otro dispositivo.</div>
+    <textarea class="code-box" id="exportCode" readonly>${code}</textarea>
+    <div class="modal-btns">
+      <button class="modal-btn primary" onclick="copyCode()">Copiar código</button>
+      <button class="modal-btn secondary" onclick="closeModal()">Cerrar</button>
+    </div>
+  `;
+}
+
+function showImportModal() {
+  document.getElementById('modalOverlay').classList.remove('hidden');
+  document.getElementById('modalSheet').innerHTML = `
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div class="modal-title">Importar predicciones</div>
+    <div class="modal-sub">Pega el código que copiaste anteriormente para restaurar tus predicciones.</div>
+    <textarea class="code-box" id="importCode" placeholder="Pega el código aquí..."></textarea>
+    <div class="modal-btns">
+      <button class="modal-btn primary" onclick="doImport()">Restaurar</button>
+      <button class="modal-btn secondary" onclick="closeModal()">Cancelar</button>
+    </div>
+  `;
+}
+
+function showImportFromWelcome() {
+  document.getElementById('modalOverlay').classList.remove('hidden');
+  document.getElementById('modalSheet').innerHTML = `
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div class="modal-title">Importar predicciones</div>
+    <div class="modal-sub">Pega el código guardado. Se restaurará tu nombre y todas tus predicciones.</div>
+    <textarea class="code-box" id="importCode" placeholder="Pega el código aquí..."></textarea>
+    <div class="modal-btns">
+      <button class="modal-btn primary" onclick="doImportFromWelcome()">Restaurar y entrar</button>
+      <button class="modal-btn secondary" onclick="closeModal()">Cancelar</button>
+    </div>
+  `;
+}
+
+function doImport() {
+  const code = document.getElementById('importCode').value;
+  try {
+    const {name, preds} = importCode(code);
+    predictions = preds;
+    lsj('wm42_preds', predictions);
+    closeModal();
+    showToast('Predicciones restauradas ✓');
+    renderApp();
+  } catch(e) {
+    showToast('Código inválido, verifica y reintenta');
+  }
+}
+
+function doImportFromWelcome() {
+  const code = document.getElementById('importCode').value;
+  try {
+    const {name, preds} = importCode(code);
+    currentUser = name;
+    predictions = preds;
+    ls('wm42_user', name);
+    lsj('wm42_preds', predictions);
+    closeModal();
+    showScreen('screenApp');
+    renderApp();
+  } catch(e) {
+    showToast('Código inválido, verifica y reintenta');
+  }
+}
+
+function showOrganizerFromWelcome() {
+  closeModal();
+  showPinModal();
+}
+
+function copyCode() {
+  const code = document.getElementById('exportCode').value;
+  navigator.clipboard.writeText(code).then(()=>showToast('Código copiado ✓')).catch(()=>{
+    document.getElementById('exportCode').select();
+    document.execCommand('copy');
+    showToast('Código copiado ✓');
+  });
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.add('hidden');
+}
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+});
+
+// ═══════════════════════════════════════════════════
+// TAB NAVIGATION
+// ═══════════════════════════════════════════════════
+document.querySelectorAll('[data-tab]').forEach(t => {
+  t.addEventListener('click', () => {
+    const tab = t.dataset.tab;
+    if (tab === 'organizer') { openOrganizer(); return; }
+    currentTab = tab;
+    document.querySelectorAll('.tab[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));
+    document.querySelectorAll('.nav-item[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));
+    renderApp();
+  });
+});
+
+document.querySelectorAll('[data-otab]').forEach(t => {
+  t.addEventListener('click', () => setOrgTab(t.dataset.otab));
+});
+
+// ═══════════════════════════════════════════════════
+// MISC
+// ═══════════════════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+function resetAll() {
+  if (confirm('¿Borrar todos tus datos locales? Esto no afecta a otros jugadores.')) {
+    localStorage.removeItem('wm42_user');
+    localStorage.removeItem('wm42_preds');
+    localStorage.removeItem('wm42_results');
+    currentUser=''; predictions={}; results={};
+    orgUnlocked=false;
+    showScreen('screenWelcome');
+  }
+}
+</script>
+
+<!--
+═══════════════════════════════════════════════════════════
+GOOGLE APPS SCRIPT — pega esto en tu Google Sheets
+Extensiones → Apps Script → reemplaza todo el contenido
+═══════════════════════════════════════════════════════════
+
+const SHEET_PREDS = 'Predicciones';
+const SHEET_RESULTS = 'Resultados';
+
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+    if (data.action === 'savePredictions') {
+      let sheet = ss.getSheetByName(SHEET_PREDS);
+      if (!sheet) sheet = ss.insertSheet(SHEET_PREDS);
+      const user = data.user;
+      const preds = data.predictions;
+      const matchIds = [1,2,3,4,5,6,7,8,9,10,11,12,13];
+
+      // Find or create column for this user
+      const headers = sheet.getRange(1,1,1,sheet.getLastColumn()).getValues()[0];
+      let col = headers.indexOf(user) + 1;
+      if (col === 0) {
+        col = sheet.getLastColumn() + 1;
+        sheet.getRange(1, col).setValue(user);
+        // Write match names in column A if not done
+        if (col === 2 || sheet.getRange(2,1).getValue() === '') {
+          sheet.getRange(1,1).setValue('Lucha');
+          matchIds.forEach((id,i) => {
+            sheet.getRange(i+2, 1).setValue('Lucha ' + id);
+          });
+        }
+      }
+
+      // Write predictions
+      matchIds.forEach((id,i) => {
+        const pred = preds[id] ? preds[id].prediccion || '' : '';
+        sheet.getRange(i+2, col).setValue(pred);
+      });
+    }
+
+    if (data.action === 'saveResults') {
+      let sheet = ss.getSheetByName(SHEET_RESULTS);
+      if (!sheet) sheet = ss.insertSheet(SHEET_RESULTS);
+      const matchIds = [1,2,3,4,5,6,7,8,9,10,11,12,13];
+      sheet.getRange(1,1).setValue('Lucha');
+      sheet.getRange(1,2).setValue('Ganador');
+      matchIds.forEach((id,i) => {
+        const ganador = data.results[id] ? data.results[id].ganador || '' : '';
+        sheet.getRange(i+2,1).setValue('Lucha ' + id);
+        sheet.getRange(i+2,2).setValue(ganador);
+      });
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({ok:true}))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({error:err.message}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const predSheet = ss.getSheetByName('Predicciones');
+    const resSheet  = ss.getSheetByName('Resultados');
+    if (!predSheet) return ContentService.createTextOutput('[]').setMimeType(ContentService.MimeType.JSON);
+
+    const matchIds = [1,2,3,4,5,6,7,8,9,10,11,12,13];
+    const teamMap = {
+      5: {'Logan Paul':'EL','Austin Theory':'EL','IShowSpeed':'EL','Jimmy Uso':'EU','Jey Uso':'EU','LA Knight':'EU'},
+      6: {'Alexa Bliss':'EC','Charlotte Flair':'EC','Bayley':'EB','Lyra Valkyria':'EB','Brie Bella':'EBE','Nikki Bella':'EBE','Nia Jax':'EN','Lash Legend':'EN'}
+    };
+
+    // Get results
+    const ganadores = {};
+    if (resSheet && resSheet.getLastRow() > 1) {
+      const rdata = resSheet.getRange(2,1,13,2).getValues();
+      rdata.forEach(row => {
+        const id = parseInt(row[0].replace('Lucha ',''));
+        if (row[1]) ganadores[id] = row[1];
+      });
+    }
+
+    // Get all users
+    const headers = predSheet.getRange(1,1,1,predSheet.getLastColumn()).getValues()[0];
+    const players = [];
+
+    for (let c = 1; c < headers.length; c++) {
+      const user = headers[c];
+      if (!user) continue;
+      const preds = predSheet.getRange(2,c+1,13,1).getValues();
+      let exactos=0, equipo=0;
+      matchIds.forEach((id,i) => {
+        const pred = preds[i][0]||'';
+        const ganador = ganadores[id]||'';
+        if (!pred || !ganador) return;
+        if (pred === ganador) { exactos++; equipo++; return; }
+        const tm = teamMap[id];
+        if (tm && tm[pred] && tm[ganador] && tm[pred]===tm[ganador]) equipo++;
+      });
+      players.push({nombre:user, exactos, equipo});
+    }
+
+    return ContentService.createTextOutput(JSON.stringify(players))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService.createTextOutput('[]').setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+═══════════════════════════════════════════════════════════
+FIN DEL APPS SCRIPT
+═══════════════════════════════════════════════════════════
+-->
+</body>
+</html>
